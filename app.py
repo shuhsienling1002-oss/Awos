@@ -225,7 +225,7 @@ if category_filter == "🍽️ 星級食材/即食":
 elif category_filter == "💧 生技保養品":
     filtered_products = [p for p in products_db if p['category'] == "生技保養"]
 
-# 雙欄網格顯示 (修復版：將 badge_html 與商品圖示放在同一行，防止 Markdown 解析中斷)
+# 雙欄網格顯示 (已修復 Markdown 斷行 Bug)
 cols = st.columns(2)
 for i, product in enumerate(filtered_products):
     with cols[i % 2]:
@@ -240,13 +240,15 @@ for i, product in enumerate(filtered_products):
         </div>
         """, unsafe_allow_html=True)
 
-# --- 頁尾：導引購買與聯絡 ---
+# --- 頁尾：導引購買與聯絡 (已修復跳轉連結) ---
+# ⚠️ 記得把 href 裡面的網址換成您真實的 LINE 或官網連結！
 st.markdown("""
     <div style="text-align:center; margin-top:40px; padding:25px; background: linear-gradient(180deg, #FDFBF7 0%, #EFEBE9 100%); border-radius:15px; border: 1px solid #D7CCC8;">
         <h4 style="color:#4E342E !important; font-weight:bold;">訂購食材 / 預約導覽</h4>
         <p style="font-size:14px; color:#5D4037; margin-bottom: 20px;">產地直銷，新鮮低溫宅配到府。歡迎餐廳主廚與團體洽詢。</p>
-        <button style="background-color:#00C300; color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:900; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 195, 0, 0.3); cursor:pointer;">
+        
+        <a href="https://lin.ee/您的專屬網址" target="_blank" style="text-decoration: none; display: inline-block; background-color:#00C300; color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:900; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 195, 0, 0.3); cursor:pointer; transition: 0.3s;">
             💬 加入官方 LINE 洽詢
-        </button>
+        </a>
     </div>
 """, unsafe_allow_html=True)
