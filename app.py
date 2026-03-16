@@ -17,7 +17,7 @@ st.set_page_config(
 # ==========================================
 st.markdown("""
     <style>
-    /* 1. 全站背景：象徵白玉蝸牛殼的溫潤乳白色 */
+    /* 全站背景：象徵白玉蝸牛殼的溫潤乳白色 */
     .stApp {
         background-color: #FDFBF7;
         font-family: "Microsoft JhengHei", sans-serif;
@@ -28,7 +28,7 @@ st.markdown("""
         color: #3E2723 !important;
     }
 
-    /* === 3. 深色模式防禦：強制輸入框白底黑字 === */
+    /* 深色模式防禦：強制輸入框白底黑字 */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div, 
     div[data-baseweb="base-input"] {
@@ -42,7 +42,7 @@ st.markdown("""
     li[data-baseweb="option"] { color: #3E2723 !important; }
     svg { fill: #3E2723 !important; color: #3E2723 !important; }
 
-    /* === 4. 日期選單高亮 (太平洋深海藍) === */
+    /* 日期選單高亮 (太平洋深海藍) */
     div[data-testid="stDateInput"] > label {
         color: #0277BD !important; 
         font-size: 20px !important;
@@ -85,7 +85,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* 轉換率按鈕 (溫暖法式芥末黃，吸引食慾與點擊) */
+    /* 轉換率按鈕 */
     .stButton>button {
         width: 100%;
         background-color: #F57F17; 
@@ -139,8 +139,6 @@ st.markdown("""
 # ==========================================
 # 3. 核心資料庫 (真實 AWOS 資源：導覽與農創)
 # ==========================================
-
-# 導覽體驗資料庫 (夜間生態與食農教育)
 tours_db = [
     {"name": "白玉蝸牛夜間生態探索", "type": "生態尋寶", "duration": "1.5小時", "fee": "$350", "desc": "蝸牛是夜行性動物！戴上頭燈，跟著農場主人在長濱星空下尋找白玉蝸牛的蹤跡。"},
     {"name": "田間採集與餵食體驗", "type": "親子互動", "duration": "1小時", "fee": "$250", "desc": "親自採摘農場種植的無毒地瓜葉，體驗近距離餵食蝸牛的療癒時光，適合全家大小。"},
@@ -148,7 +146,6 @@ tours_db = [
     {"name": "蝸牛殼彩繪手作坊", "type": "文創 DIY", "duration": "1.5小時", "fee": "$300", "desc": "將廢棄的白玉蝸牛殼回收再利用，發揮創意彩繪，製作成獨一無二的長濱紀念品。"}
 ]
 
-# 衍生商品資料庫 (頂級食材與生技面膜)
 products_db = [
     {"name": "頂級白玉蝸牛冷凍肉", "category": "星級食材", "price": 680, "icon": "🥩", "desc": "米其林餐廳指定使用！已手工去殼處理，肉質Ｑ彈鮮甜，適合乾煎或法式烤製。", "hot": True},
     {"name": "法式香蒜奶油蝸牛組", "category": "即食料理", "price": 850, "icon": "🧄", "desc": "內含頂級蝸牛肉與特調法式香蒜奶油醬，在家用烤箱10分鐘即享星級美味。", "hot": False},
@@ -216,7 +213,6 @@ st.markdown("---")
 st.markdown("### 🛍️ AWOS 頂級農創市集")
 st.markdown("<p style='font-size:14px; color:#5D4037;'>從米其林級食材到極致修護保養，把長濱的精華帶回家。</p>", unsafe_allow_html=True)
 
-# 商品分類 Filter
 category_filter = st.radio("商品分類", ["全部", "🍽️ 星級食材/即食", "💧 生技保養品"], horizontal=True)
 
 filtered_products = products_db
@@ -225,7 +221,6 @@ if category_filter == "🍽️ 星級食材/即食":
 elif category_filter == "💧 生技保養品":
     filtered_products = [p for p in products_db if p['category'] == "生技保養"]
 
-# 雙欄網格顯示 (已修復 Markdown 斷行 Bug)
 cols = st.columns(2)
 for i, product in enumerate(filtered_products):
     with cols[i % 2]:
@@ -240,15 +235,12 @@ for i, product in enumerate(filtered_products):
         </div>
         """, unsafe_allow_html=True)
 
-# --- 頁尾：導引購買與聯絡 (已修復跳轉連結) ---
-# ⚠️ 記得把 href 裡面的網址換成您真實的 LINE 或官網連結！
+# --- 頁尾：導引購買與聯絡 (已完全扁平化，消除縮排 Bug) ---
+# ⚠️ 這裡的 https://lin.ee/您的專屬網址 記得換成真正的 LINE 網址！
 st.markdown("""
-    <div style="text-align:center; margin-top:40px; padding:25px; background: linear-gradient(180deg, #FDFBF7 0%, #EFEBE9 100%); border-radius:15px; border: 1px solid #D7CCC8;">
-        <h4 style="color:#4E342E !important; font-weight:bold;">訂購食材 / 預約導覽</h4>
-        <p style="font-size:14px; color:#5D4037; margin-bottom: 20px;">產地直銷，新鮮低溫宅配到府。歡迎餐廳主廚與團體洽詢。</p>
-        
-        <a href="https://lin.ee/您的專屬網址" target="_blank" style="text-decoration: none; display: inline-block; background-color:#00C300; color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:900; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 195, 0, 0.3); cursor:pointer; transition: 0.3s;">
-            💬 加入官方 LINE 洽詢
-        </a>
-    </div>
+<div style="text-align:center; margin-top:40px; padding:25px; background: linear-gradient(180deg, #FDFBF7 0%, #EFEBE9 100%); border-radius:15px; border: 1px solid #D7CCC8;">
+    <h4 style="color:#4E342E !important; font-weight:bold; margin-bottom:10px;">訂購食材 / 預約導覽</h4>
+    <p style="font-size:14px; color:#5D4037; margin-bottom:25px;">產地直銷，新鮮低溫宅配到府。歡迎餐廳主廚與團體洽詢。</p>
+    <a href="https://lin.ee/您的專屬網址" target="_blank" style="text-decoration: none; display: inline-block; background-color:#00C300; color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:900; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 195, 0, 0.3); cursor:pointer;">💬 加入官方 LINE 洽詢</a>
+</div>
 """, unsafe_allow_html=True)
