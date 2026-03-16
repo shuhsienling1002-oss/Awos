@@ -225,15 +225,14 @@ if category_filter == "🍽️ 星級食材/即食":
 elif category_filter == "💧 生技保養品":
     filtered_products = [p for p in products_db if p['category'] == "生技保養"]
 
-# 雙欄網格顯示
+# 雙欄網格顯示 (修復版：將 badge_html 與商品圖示放在同一行，防止 Markdown 解析中斷)
 cols = st.columns(2)
 for i, product in enumerate(filtered_products):
     with cols[i % 2]:
         badge_html = '<div class="badge">熱銷</div>' if product.get('hot') else ''
         st.markdown(f"""
         <div class="product-card">
-            {badge_html}
-            <div style="font-size: 35px; margin-bottom:10px;">{product['icon']}</div>
+            {badge_html}<div style="font-size: 35px; margin-bottom:10px;">{product['icon']}</div>
             <span class="product-tag">{product['category']}</span>
             <div style="font-weight: 900; color: #3E2723; margin-top: 10px; font-size:16px;">{product['name']}</div>
             <div class="product-price">NT$ {product['price']}</div>
