@@ -1,246 +1,203 @@
 import streamlit as st
-import random
+import time
 from datetime import datetime, date
 
 # ==========================================
-# 1. 系統設定 (AWOS 白玉蝸牛專屬配置)
+# 1. 系統設定 & 全域變數 (為手機版優化，改回 centered 佈局)
 # ==========================================
 st.set_page_config(
-    page_title="AWOS 宏成蝸牛農場 | 台東長濱頂級白玉蝸牛",
-    page_icon="🐌",
-    layout="centered",
+    page_title="Mayaw的店 | 阿美族頂級風土料理",
+    page_icon="🌿",
+    layout="centered", 
     initial_sidebar_state="collapsed"
 )
 
 # ==========================================
-# 2. CSS 美學 (長濱海岸湛藍 x 白玉蝸牛溫潤白)
+# 2. CSS 高對比清晰美學 & 手機版優化
 # ==========================================
 st.markdown("""
     <style>
-    /* 全站背景：象徵白玉蝸牛殼的溫潤乳白色 */
-    .stApp {
-        background-color: #FDFBF7;
+    /* 強制全站純白底色與深黑字體 */
+    .stApp { background-color: #FFFFFF !important; }
+    p, span, div, h1, h2, h3, h4, h5, h6, label { 
+        color: #1A1A1A !important; 
         font-family: "Microsoft JhengHei", sans-serif;
-        color: #3E2723 !important;
     }
     
-    p, div, span, h1, h2, h3, h4, h5, h6, label, .stMarkdown {
-        color: #3E2723 !important;
-    }
+    /* 隱藏預設的側邊欄展開按鈕，實現真正的單頁面 */
+    [data-testid="collapsedControl"] { display: none !important; }
+    section[data-testid="stSidebar"] { display: none !important; }
 
-    /* 深色模式防禦：強制輸入框白底黑字 */
-    div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] > div, 
-    div[data-baseweb="base-input"] {
-        background-color: #ffffff !important; 
-        border: 1px solid #BCAAA4 !important;
-        color: #3E2723 !important; 
-    }
-    input { color: #3E2723 !important; }
-    div[data-baseweb="select"] span { color: #3E2723 !important; }
-    ul[data-baseweb="menu"] { background-color: #ffffff !important; }
-    li[data-baseweb="option"] { color: #3E2723 !important; }
-    svg { fill: #3E2723 !important; color: #3E2723 !important; }
-
-    /* 日期選單高亮 (太平洋深海藍) */
-    div[data-testid="stDateInput"] > label {
-        color: #0277BD !important; 
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        margin-bottom: 10px !important;
-        display: block;
-    }
-    div[data-testid="stDateInput"] div[data-baseweb="input"] {
-        border: 2px solid #0288D1 !important; 
-        background-color: #E1F5FE !important;
-        border-radius: 10px !important;
-    }
-
-    /* 隱藏官方元件 */
-    header {visibility: hidden;}
-    footer {display: none !important;}
-    
-    /* 標題區：長濱海岸星空 到 大地土壤的漸層 */
+    /* 標題區漸層 (手機版縮小 padding) */
     .header-box {
-        background: linear-gradient(135deg, #01579B 0%, #4E342E 100%);
-        padding: 35px 20px;
-        border-radius: 0 0 30px 30px;
-        color: white !important;
+        background: linear-gradient(135deg, #004D40 0%, #1B5E20 100%);
+        padding: 30px 15px;
+        border-radius: 15px;
         text-align: center;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 15px rgba(1, 87, 155, 0.4);
-        margin-top: -60px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-    .header-box h1, .header-box div, .header-box span { color: white !important; }
-    .header-title { font-size: 32px; font-weight: bold; letter-spacing: 3px; margin-bottom: 5px;}
-    .header-subtitle { font-size: 15px; color: #E0E0E0 !important; font-style: italic; }
+    .header-box h1 { color: #FFFFFF !important; font-size: 28px; letter-spacing: 3px; margin-bottom: 5px;}
+    .header-box p { color: #E0F2F1 !important; font-size: 14px; font-weight: bold;}
     
     /* 卡片模組 */
-    .section-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        border-top: 4px solid #0288D1;
+    .card { 
+        background-color: #F8F9FA !important; 
+        border-radius: 12px; 
+        padding: 20px; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+        border: 1px solid #DEE2E6 !important;
+        border-top: 5px solid #00695C !important; 
+        margin-bottom: 20px; 
+    }
+    .warning-card { 
+        background-color: #FFF3E0 !important; 
+        border: 1px solid #FFE0B2 !important;
+        border-top: 5px solid #D84315 !important; 
+    }
+    
+    /* 按鈕優化 (適合手機點擊的大按鈕) */
+    .stButton>button { 
+        width: 100%; 
+        background-color: #00695C !important; 
+        color: #FFFFFF !important; 
+        border-radius: 8px; 
+        border: none; 
+        padding: 15px 0; 
+        font-weight: bold; 
+        font-size: 18px;
+        transition: 0.3s; 
+    }
+    .stButton>button:hover { background-color: #004D40 !important; }
+    
+    /* Streamlit Tabs 標籤頁樣式覆寫 */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
         margin-bottom: 20px;
     }
-    
-    /* 轉換率按鈕 */
-    .stButton>button {
-        width: 100%;
-        background-color: #F57F17; 
-        color: white !important;
-        border-radius: 50px;
-        border: none;
-        padding: 12px 0;
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #F1F3F4;
+        border-radius: 8px 8px 0 0;
+        padding: 10px 15px;
         font-weight: bold;
-        transition: 0.3s;
-        font-size: 18px;
-        box-shadow: 0 4px 6px rgba(245, 127, 23, 0.3);
     }
-    .stButton>button:hover { background-color: #E65100; transform: translateY(-2px); }
-    
-    /* 導覽時間軸 */
-    .tour-item {
-        border-left: 4px solid #8D6E63;
-        padding-left: 15px;
-        margin-bottom: 18px;
-        position: relative;
+    .stTabs [aria-selected="true"] {
+        background-color: #004D40;
+        color: white !important;
     }
-    .tour-item::before {
-        content: '🐌';
-        position: absolute;
-        left: -15px;
-        top: 0;
-        background: #FDFBF7;
-    }
-    .tour-title { font-weight: bold; color: #4E342E !important; font-size: 19px; }
-    .tour-tag { font-size: 12px; background: #EFEBE9; color: #5D4037 !important; padding: 3px 10px; border-radius: 12px; margin-right: 6px; font-weight: bold;}
-    
-    /* 商品網格卡片 */
-    .product-card {
-        background: #FFFFFF;
-        border: 1px solid #E0E0E0;
-        padding: 18px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        text-align: center;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .product-card:hover { border-color: #0288D1; box-shadow: 0 8px 15px rgba(2,136,209,0.15); transform: translateY(-3px);}
-    .product-price { font-size: 20px; color: #C62828 !important; font-weight: 900; margin: 8px 0; }
-    .product-tag { font-size: 11px; background: #E1F5FE; color: #0277BD !important; padding: 3px 8px; border-radius: 8px; font-weight: bold;}
-    .badge { position: absolute; top: 10px; right: -25px; background: #D32F2F; color: white !important; font-size: 10px; font-weight: bold; padding: 3px 30px; transform: rotate(45deg); }
+    .stTabs [aria-selected="true"] p { color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. 核心資料庫 (真實 AWOS 資源：導覽與農創)
+# 3. 核心資料庫
 # ==========================================
-tours_db = [
-    {"name": "白玉蝸牛夜間生態探索", "type": "生態尋寶", "duration": "1.5小時", "fee": "$350", "desc": "蝸牛是夜行性動物！戴上頭燈，跟著農場主人在長濱星空下尋找白玉蝸牛的蹤跡。"},
-    {"name": "田間採集與餵食體驗", "type": "親子互動", "duration": "1小時", "fee": "$250", "desc": "親自採摘農場種植的無毒地瓜葉，體驗近距離餵食蝸牛的療癒時光，適合全家大小。"},
-    {"name": "產地到餐桌：法式蝸牛品嚐", "type": "頂級食農", "duration": "2小時", "fee": "$880", "desc": "導覽後，由主廚現場料理頂級白玉蝸牛，品嚐舒肥玉螺沙拉與法式香蒜烤蝸牛。"},
-    {"name": "蝸牛殼彩繪手作坊", "type": "文創 DIY", "duration": "1.5小時", "fee": "$300", "desc": "將廢棄的白玉蝸牛殼回收再利用，發揮創意彩繪，製作成獨一無二的長濱紀念品。"}
-]
-
-products_db = [
-    {"name": "頂級白玉蝸牛冷凍肉", "category": "星級食材", "price": 680, "icon": "🥩", "desc": "米其林餐廳指定使用！已手工去殼處理，肉質Ｑ彈鮮甜，適合乾煎或法式烤製。", "hot": True},
-    {"name": "法式香蒜奶油蝸牛組", "category": "即食料理", "price": 850, "icon": "🧄", "desc": "內含頂級蝸牛肉與特調法式香蒜奶油醬，在家用烤箱10分鐘即享星級美味。", "hot": False},
-    {"name": "舒肥玉螺沙拉獨享包", "category": "輕食首選", "price": 280, "icon": "🥗", "desc": "低溫舒肥處理，保留最高蛋白質，解凍後搭配生菜即可上桌的健康輕食。", "hot": False},
-    {"name": "AWOS 蝸牛潛艇堡套組", "category": "即食料理", "price": 350, "icon": "🥖", "desc": "長濱必吃特色美食！滿滿的玉螺肉搭配特製醬汁與軟法麵包。", "hot": True},
-    {"name": "極致修護保濕蝸牛面膜", "category": "生技保養", "price": 499, "icon": "🧴", "desc": "萃取白玉蝸牛高濃度黏液精華，富含膠原蛋白與尿囊素，深層修護曬後肌膚。", "hot": True},
-    {"name": "蝸牛原液修護精華露", "category": "生技保養", "price": 1280, "icon": "✨", "desc": "高純度原液，吸收迅速不黏膩，鎖水撫平細紋，大自然的頂級抗老秘密。", "hot": False}
+ten_hearts_db = [
+    {"name": "黃藤心", "trait": "先苦後甘", "desc": "富含鋅與鉀，高濃度多酚帶來極致苦味，需利用動物油脂包覆單寧轉化為悠長回甘。"},
+    {"name": "林投心", "trait": "防禦與極限", "desc": "海岸線防風林植物，採集困難。其葉用於編織阿里鳳鳳(情人便當)，心部富含獨特纖維。"},
+    {"name": "月桃心", "trait": "抗炎精油", "desc": "富含揮發性抗炎精油，散發熱帶雨林與生薑的天然辛香，常用於低溫燜烤驅邪。"},
+    {"name": "鐵樹心", "trait": "致命與重生", "desc": "【警語】含有致命神經毒素。本餐廳具備實驗室級SOP，透過物理搗碎與活水連續浸泡提取純淨澱粉。"},
+    {"name": "甘蔗心", "trait": "天然單醣", "desc": "阿美族湯頭「無味精堅持」的靈魂，釋放天然單醣與海鮮游離核苷酸產生完美梅納反應。"}
 ]
 
 # ==========================================
-# 4. 邏輯核心：精準推薦系統
-# ==========================================
-def recommend_tours(group):
-    if group == "親子家庭 (帶小孩)":
-        return [t for t in tours_db if t['name'] in ["田間採集與餵食體驗", "蝸牛殼彩繪手作坊"]]
-    elif group == "老饕/情侶約會":
-        return [t for t in tours_db if t['name'] in ["產地到餐桌：法式蝸牛品嚐", "白玉蝸牛夜間生態探索"]]
-    elif group == "深度體驗玩家":
-        return [t for t in tours_db if t['type'] in ["生態尋寶", "頂級食農"]]
-    else:
-        return tours_db[:3]
-
-# ==========================================
-# 5. 頁面內容
+# 4. 頂部主視覺 (全局顯示)
 # ==========================================
 st.markdown("""
     <div class="header-box">
-        <div class="header-title">🐌 宏成蝸牛 AWOS 農場</div>
-        <div class="header-subtitle">長濱純淨水土培育 • 台灣米其林級白玉蝸牛</div>
+        <h1>🌿 Mayaw 的店</h1>
+        <p>吃草民族的生態智慧 • 阿美族風土 Fine Dining</p>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 區塊 1：導覽預約模組 ---
-st.markdown("### 🌿 預約產地生態體驗")
-with st.container():
-    st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        visit_date = st.date_input("📅 預計到訪長濱日期", value=date.today())
-    with col2:
-        group = st.selectbox("👥 您的同行旅伴", ["老饕/情侶約會", "親子家庭 (帶小孩)", "深度體驗玩家", "一人慢遊"])
-    
-    if st.button("🔍 尋找適合的蝸牛體驗"):
-        st.session_state['show_tours'] = True
+# ==========================================
+# 5. 單一版面結構：使用 Tabs 整合三大功能
+# ==========================================
+tab1, tab2, tab3 = st.tabs(["🏠 預約單點", "💎 VIP客製", "🌱 產地圖鑑"])
+
+# ------------------------------------------
+# 模組 1：預約與單點 (Tab 1)
+# ------------------------------------------
+with tab1:
+    st.markdown('<div class="card"><h3 style="color:#004D40!important;">⛰️ 預約主題饗宴</h3>', unsafe_allow_html=True)
+    date_sel = st.date_input("📅 預計用餐日期", value=date.today())
+    pax = st.number_input("👥 用餐人數", min_value=1, max_value=20, value=2)
+    tour = st.selectbox("🍽️ 選擇主題套餐", [
+        "野菜餐 (十心微生態饗宴) - $1,280", 
+        "海洋餐 (潮間帶零綠葉禁忌) - $1,680", 
+        "獵人餐 (荒野能量與發酵) - $1,080", 
+        "巴歌浪餐 (流水與療癒) - $980"
+    ])
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("確認預約", key="btn_reserve"):
+        st.success(f"✅ 已成功為您預約 {date_sel} 共 {pax} 位之 {tour.split(' ')[0]}！")
     st.markdown('</div>', unsafe_allow_html=True)
 
-if st.session_state.get('show_tours'):
-    st.markdown(f"**為「{group}」推薦的專屬導覽：**")
-    recs = recommend_tours(group)
-    for tour in recs:
+    st.markdown('<div class="card"><h3 style="color:#004D40!important;">🥢 經典單點美饌</h3>', unsafe_allow_html=True)
+    items = ["🍲 黃藤心豚骨慢燉醇湯 $380", "🥩 熟成 Siraw 佐刺蔥舒肥雞 $420", "🔥 800度蛇紋石水煮活鮮 $680", "🍙 林投葉編阿里鳳鳳 $250"]
+    for item in items:
+        st.markdown(f"<div style='margin-bottom:12px; font-size:16px; font-weight:bold; border-bottom:1px solid #EEE; padding-bottom:8px;'>{item}</div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------------------------------
+# 模組 2：VIP 客製無菜單 (Tab 2)
+# ------------------------------------------
+with tab2:
+    st.markdown('<div class="card" style="border-top-color: #311B92 !important;">', unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#311B92!important; margin-bottom:15px;'>🧠 構建味覺參數</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:14px; color:#555!important;'>滑動設定您的偏好，AI主廚將重組阿美族飲食DNA。</p>", unsafe_allow_html=True)
+    
+    # 手機版改為全垂直排列
+    bitter_level = st.slider("🌿 苦味耐受度 (0=抗拒, 10=熱愛)", 0, 10, 5)
+    ferment_level = st.slider("🥩 發酵接受度 (0=熟食, 10=生醃)", 0, 10, 5)
+    sea_level = st.slider("🌊 海洋野味偏好 (0=純山林, 10=純海洋)", 0, 10, 5)
+    courage_level = st.slider("🔥 食材冒險精神 (挑戰毒性降解)", 0, 10, 0)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("✨ 生成專屬 Omakase 菜單", key="btn_omakase"):
+        with st.spinner("AI 解析中..."):
+            time.sleep(1.2)
+            st.markdown("---")
+            st.markdown("<h3 style='color:#311B92!important;'>📜 您的專屬無菜單</h3>", unsafe_allow_html=True)
+            
+            amuse_bouche = "月桃心低溫燜烤雞胸" if bitter_level < 5 else "冷萃黃藤心嫩芽佐天然海鹽"
+            soup = "甘蔗心鮮魚清湯" if sea_level > 5 else "黃藤心豚骨醇湯"
+            main_course = "黑潮鬼頭刀厚切鹽烤" if sea_level > 7 else ("12% 完美發酵熟成 Siraw" if ferment_level > 7 else "馬告香料烤山豬肉")
+            special = "【極限料理】降解鐵樹心手作麻糬" if courage_level >= 8 else "紅糯米提拉米蘇"
+
+            st.info(f"**【前菜】** {amuse_bouche}\n\n"
+                    f"**【湯品】** {soup}\n\n"
+                    f"**【主餐】** {main_course}\n\n"
+                    f"**【甜點】** {special}")
+            st.success("總廚 Mayaw 已接收！定價：NT$ 2,580 / 人")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------------------------------
+# 模組 3：產地與十心菜圖鑑 (Tab 3)
+# ------------------------------------------
+with tab3:
+    st.markdown('<div class="card warning-card">', unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#D84315!important; margin-bottom:10px;'>⚠️ 醫療級別食安防禦</h3>", unsafe_allow_html=True)
+    st.markdown("""
+    <ul style='font-size:15px; line-height:1.6; padding-left:20px; color:#1A1A1A!important;'>
+        <li><b>絕對剔除檳榔心</b>：醫學實證會引發口腔癌與心肌梗塞，本餐廳<b>永久禁用</b>。</li>
+        <li><b>鐵樹心極端解毒</b>：必須經過「物理破壁 -> 活水浸泡 -> 高溫熬煮」完整降解程序。孕婦及心血管疾病患者禁止食用。</li>
+    </ul>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("<h3 style='margin:20px 0;'>🌿 十心菜名錄</h3>", unsafe_allow_html=True)
+    
+    # 手機版改為全垂直堆疊卡片
+    for heart in ten_hearts_db:
         st.markdown(f"""
-        <div class="tour-item">
-            <div class="tour-title">{tour['name']}</div>
-            <div style="margin: 6px 0;">
-                <span class="tour-tag">⏱️ {tour['duration']}</span>
-                <span class="tour-tag">💰 {tour['fee']}/人</span>
-                <span class="tour-tag" style="background:#E1F5FE; color:#0277BD!important;">{tour['type']}</span>
+        <div class="card" style="padding:15px; border-left: 5px solid #004D40 !important; border-top: 1px solid #DEE2E6 !important;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="color:#004D40!important; margin:0;">{heart['name']}</h4>
+                <span style="background:#E0F2F1; color:#00695C!important; padding:4px 8px; border-radius:8px; font-size:12px; font-weight:bold;">{heart['trait']}</span>
             </div>
-            <div style="font-size: 14px; color: #555; line-height: 1.5;">{tour['desc']}</div>
+            <p style="font-size:14px; margin-top:10px; color:#333333!important; line-height:1.5;">{heart['desc']}</p>
         </div>
         """, unsafe_allow_html=True)
-
-# --- 區塊 2：蝸牛生技與農創市集 ---
-st.markdown("---")
-st.markdown("### 🛍️ AWOS 頂級農創市集")
-st.markdown("<p style='font-size:14px; color:#5D4037;'>從米其林級食材到極致修護保養，把長濱的精華帶回家。</p>", unsafe_allow_html=True)
-
-category_filter = st.radio("商品分類", ["全部", "🍽️ 星級食材/即食", "💧 生技保養品"], horizontal=True)
-
-filtered_products = products_db
-if category_filter == "🍽️ 星級食材/即食":
-    filtered_products = [p for p in products_db if p['category'] in ["星級食材", "即食料理", "輕食首選"]]
-elif category_filter == "💧 生技保養品":
-    filtered_products = [p for p in products_db if p['category'] == "生技保養"]
-
-cols = st.columns(2)
-for i, product in enumerate(filtered_products):
-    with cols[i % 2]:
-        badge_html = '<div class="badge">熱銷</div>' if product.get('hot') else ''
-        st.markdown(f"""
-        <div class="product-card">
-            {badge_html}<div style="font-size: 35px; margin-bottom:10px;">{product['icon']}</div>
-            <span class="product-tag">{product['category']}</span>
-            <div style="font-weight: 900; color: #3E2723; margin-top: 10px; font-size:16px;">{product['name']}</div>
-            <div class="product-price">NT$ {product['price']}</div>
-            <div style="font-size: 13px; color: #757575; margin-top: 8px; line-height:1.4;">{product['desc']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# --- 頁尾：導引購買與聯絡 (已完全扁平化，消除縮排 Bug) ---
-# ⚠️ 這裡的 https://lin.ee/您的專屬網址 記得換成真正的 LINE 網址！
-st.markdown("""
-<div style="text-align:center; margin-top:40px; padding:25px; background: linear-gradient(180deg, #FDFBF7 0%, #EFEBE9 100%); border-radius:15px; border: 1px solid #D7CCC8;">
-    <h4 style="color:#4E342E !important; font-weight:bold; margin-bottom:10px;">訂購食材 / 預約導覽</h4>
-    <p style="font-size:14px; color:#5D4037; margin-bottom:25px;">產地直銷，新鮮低溫宅配到府。歡迎餐廳主廚與團體洽詢。</p>
-    <a href="https://lin.ee/您的專屬網址" target="_blank" style="text-decoration: none; display: inline-block; background-color:#00C300; color:white; border:none; padding:12px 30px; border-radius:50px; font-weight:900; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 195, 0, 0.3); cursor:pointer;">💬 加入官方 LINE 洽詢</a>
-</div>
-""", unsafe_allow_html=True)
